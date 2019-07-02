@@ -1,7 +1,13 @@
 <script>
   import { state } from "../stores.js";
   import { onMount } from 'svelte';
+  const ipcRenderer = window.ipcRenderer;
   $: submitClasses = $state.loading ? "ui button primary loading disabled" : "ui button primary";
+
+  ipcRenderer.on('downloadedManga', (event, arg) => {
+    state.set({ ...$state, currentStep: 4, loading: false });
+  })
+
 
   onMount(() => {
     console.log($state);
@@ -33,7 +39,9 @@
   function downloadManga() {
     let slider = document.getElementById('slider');
     let chapters = slider.noUiSlider.get();
+    let chapterList = Array(Number(chapters[1]) - Number(chapters[0]) + 1).fill().map((_, idx) => `${Number(chapters[0]) + idx}`);
     state.set({ ...$state, loading: true });
+    ipcRenderer.send('downloadManga', { manga: $state.manga, chapterList, destFolder: './downloads' });
   }
 </script>
 
@@ -60,21 +68,21 @@
 </style>
 
 <div class="ui segment picker-form">
-  <form class="ui form">
-    <div class="field">
-      <label>Chapters to download</label>
-      <div class="inline-slider">
-        <span class="slider-value">{$state.startChapter}</span>
-        <div id="slider" class="sliders"></div>
-        <span class="slider-value">{$state.endChapter}</span>
-      </div>
+  <!-- <form class="ui form"> -->
+  <div class="field">
+    <label>Chapters to download</label>
+    <div class="inline-slider">
+      <span class="slider-value">{$state.startChapter}</span>
+      <div id="slider" class="sliders"></div>
+      <span class="slider-value">{$state.endChapter}</span>
     </div>
-    <div class="field">
-      <div class="ui checkbox toggle">
-        <input type="checkbox">
-        <label>Convert to kindle format</label>
-      </div>
+  </div>
+  <div class="field">
+    <div class="ui checkbox toggle">
+      <input type="checkbox">
+      <label>Convert to kindle format</label>
     </div>
-    <button class={submitClasses} on:click={downloadManga}>Download</button>
-  </form>
+  </div>
+  <button class={submitClasses} on:click={downloadManga}>Download</button>
+  <!-- </form> -->
 </div>

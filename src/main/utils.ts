@@ -5,6 +5,16 @@ import * as httpm from 'typed-rest-client/HttpClient';
 
 let httpc: httpm.HttpClient = new httpm.HttpClient('manglo');
 
+function retry(maxRetries: number, fn: any) {
+  return fn().catch(function (err: any) {
+    console.error('Error when downloading', err)
+    if (maxRetries <= 0) {
+      throw err;
+    }
+    return retry(maxRetries - 1, fn);
+  });
+}
+
 export async function getMangaList() {
   let res: httpm.HttpClientResponse = await httpc.get('https://www.mangapanda.com/alphabetical');
   let body: string = await res.readBody();
@@ -55,12 +65,14 @@ export async function getPagesImageUrls(mangaPath: string, chapterNumber: string
   }));
 }
 
-export async function downloadManga(mangaPath: string, chapterList: Array<string>) {
+export async function downloadManga(mangaPath: string, destFolder: string, chapterList: Array<string>) {
   await Promise.all(chapterList.map(async (chapterNumber) => {
     let urls = await getPagesImageUrls(mangaPath, chapterNumber);
     await Promise.all(urls.map(async (pageUrl, pageNumber) => {
-      let file: NodeJS.WritableStream = fs.createWriteStream(`.${mangaPath}_${chapterNumber}_${pageNumber}.jpg`);
-      (await httpc.get(pageUrl)).message.pipe(file);
+      let file: NodeJS.WritableStream = fs.createWriteStream(`${destFolder}/${mangaPath}_${chapterNumber}_${pageNumber}.jpg`);
+      retry(5, async () => {
+        (await httpc.get(pageUrl)).message.pipe(file);
+      })
     }));
   }));
 }

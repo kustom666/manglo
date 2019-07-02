@@ -1,5 +1,6 @@
+import fs from 'fs';
 import { app, BrowserWindow, ipcMain } from "electron";
-import { getMangaList, getMangaChapterList } from './utils';
+import { getMangaList, getMangaChapterList, downloadManga } from './utils';
 
 let mainWindow: Electron.BrowserWindow;
 
@@ -61,4 +62,12 @@ ipcMain.on("getMangaList", async (event: any, arg: any) => {
 ipcMain.on("getMangaChapterList", async (event: any, arg: any) => {
   let list = await getMangaChapterList(arg.path);
   event.reply("gotMangaChapterList", list);
+});
+
+ipcMain.on("downloadManga", async (event: any, arg: any) => {
+  if (!fs.existsSync(arg.destFolder)) {
+    fs.mkdirSync(arg.destFolder);
+  }
+  await downloadManga(arg.manga.path, arg.destFolder, arg.chapterList);
+  event.reply("downloadedManga");
 });

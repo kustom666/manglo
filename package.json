@@ -1,0 +1,35 @@
+{
+  "name": "svelte-app",
+  "version": "1.0.0",
+  "main": "dist/electron-main.js",
+  "devDependencies": {
+    "@types/cheerio": "^0.22.11",
+    "@types/lodash": "^4.14.135",
+    "cheerio": "^1.0.0-rc.3",
+    "cross-env": "^5.2.0",
+    "lodash": "^4.17.11",
+    "npm-run-all": "^4.1.5",
+    "rollup": "^1.10.1",
+    "rollup-plugin-commonjs": "^9.3.4",
+    "rollup-plugin-livereload": "^1.0.0",
+    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-svelte": "^5.0.3",
+    "rollup-plugin-terser": "^4.0.4",
+    "svelte": "^3.0.0",
+    "tsc": "^1.20150623.0",
+    "typed-rest-client": "^1.5.0",
+    "typescript": "^3.5.2"
+  },
+  "dependencies": {
+    "electron": "^5.0.6",
+    "sirv-cli": "^0.4.4"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "autobuild": "rollup -c -w",
+    "dev": "run-p start:dev autobuild",
+    "start": "sirv public --single",
+    "start:dev": "sirv public --single --dev",
+    "electron": "cross-env npx tsc && npx electron ."
+  }
+}

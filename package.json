@@ -21,7 +21,7 @@
     "typescript": "^3.5.2"
   },
   "dependencies": {
-    "electron": "^5.0.6",
+    "electron": "^11.5.0",
     "sirv-cli": "^0.4.4"
   },
   "scripts": {
